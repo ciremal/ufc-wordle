@@ -1,7 +1,8 @@
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
-
+from ..items import UfcItem
+from scrapy.loader import ItemLoader
 
 class UfcSpider(CrawlSpider):
     name = "ufc"
@@ -13,7 +14,7 @@ class UfcSpider(CrawlSpider):
     )
 
     page_count = 0
-    max_pages = 2
+    max_pages = 1
 
     def parse_start_url(self, response):
         return self.parse_fighter_pages(response)
@@ -30,88 +31,84 @@ class UfcSpider(CrawlSpider):
                 yield response.follow(fighter_page, self.parse_fighter_info)
 
     def parse_fighter_info(self, response):
-        name = response.css("h1.hero-profile__name::text").get()
-        division = response.css("p.hero-profile__division-title::text").get()
-        record = response.css("p.hero-profile__division-body::text").get().strip()
+        itemLoader = ItemLoader(item=UfcItem(), response=response)
 
-        record = record.split(" ")[0].split("-")
+        itemLoader.add_css("name", "h1.hero-profile__name")
+        itemLoader.add_css("division", "p.hero-profile__division-title")
+        itemLoader.add_css("record", "p.hero-profile__division-body")
 
-        win_method_info = self.parse_win_method(response)
-        sig_str_pos_info = self.parse_sig_str_pos(response)
-        accuracy_info = self.parse_accuracy_stats(response)
-        additional_info = self.parse_additional_stats(response)
-        if name and division and record:
-            yield {
-                "name": name.strip(),
-                "divison": division.strip(),
-                "wins": int(record[0]),
-                "loss": int(record[1]),
-                "draws": int(record[2])
-            } | win_method_info | sig_str_pos_info | accuracy_info | additional_info
+        self.parse_bio(response, itemLoader)
+        self.parse_win_method(response, itemLoader)
+        self.parse_sig_str_pos(response, itemLoader)
+        self.parse_accuracy_stats(response, itemLoader)
+        self.parse_additional_stats(response, itemLoader)
 
-    def parse_win_method(self, response):
+        return itemLoader.load_item()
+
+    def parse_bio(self, response, itemLoader):
+        for item in response.css("div.c-bio__field"):
+            label = item.css('div.c-bio__label::text').get()
+            if label:
+                value = item.css('div.c-bio__text::text').get()
+                if label == "Status": itemLoader.add_value('status', value)
+                if label == "Hometown": itemLoader.add_value('hometown', value)
+                if label == "Fighting style": itemLoader.add_value('fighting_style', value)
+                if label == "Age": itemLoader.add_value('age', item.css('div[class*="field--name-age"]::text').get())
+                if label == "Height": itemLoader.add_value('height', value)
+                if label == "Weight": itemLoader.add_value('weight', value)
+                if label == "Octagon Debut": itemLoader.add_value('debut', value)
+                if label == "Reach": itemLoader.add_value('reach', value)
+                if label == "Leg reach": itemLoader.add_value('leg_reach', value)
+        return itemLoader.load_item()
         
-        info = {
-            "KO/TKO": 0,
-            "DEC": 0,
-            "SUB": 0
-        }
+
+    def parse_win_method(self, response, itemLoader):
         for item in response.css('div.c-stat-3bar__group'):
             label = item.css("div.c-stat-3bar__label::text").get().split()[0]
-            value = item.css("div.c-stat-3bar__value::text").get().split()[0]
-            if label == "KO/TKO" or label == "DEC" or label == "SUB":
-                info[label] = int(value.split(" ")[0])
+            if label == "KO/TKO":
+                itemLoader.add_value("ko_tko", item.css("div.c-stat-3bar__value::text").get())
+            elif label == "DEC":
+                itemLoader.add_value("dec", item.css("div.c-stat-3bar__value::text").get())
+            elif label == "SUB":
+                itemLoader.add_value("sub", item.css("div.c-stat-3bar__value::text").get())
+        return itemLoader.load_item()
 
-        return info
-
-    def parse_sig_str_pos(self, response):
-        
-        info = {
-            "Standing": 0,
-            "Clinch": 0,
-            "Ground": 0
-        }
+    def parse_sig_str_pos(self, response, itemLoader):
         for item in response.css('div.c-stat-3bar__group'):
             label = item.css("div.c-stat-3bar__label::text").get().split()[0]
-            value = item.css("div.c-stat-3bar__value::text").get().split()[0]
-            if label == "Standing" or label == "Clinch" or label == "Ground":
-                info[label] = int(value.split(" ")[0])
+            if label == "Standing":
+                itemLoader.add_value("standing", item.css("div.c-stat-3bar__value::text").get())
+            elif label == "Clinch":
+                itemLoader.add_value("clinch", item.css("div.c-stat-3bar__value::text").get())
+            elif label == "Ground":
+                itemLoader.add_value("ground", item.css("div.c-stat-3bar__value::text").get())
 
-        return info
+        return itemLoader.load_item()
 
-    def parse_accuracy_stats(self, response):
-        info = {
-            "striking accuracy": "0%",
-            "takedown accuracy": "0%",
-        }
+    def parse_accuracy_stats(self, response, itemLoader):
         for item in response.css('div[class="stats-records stats-records--two-column"]'):
             title = item.css('h2.e-t3::text').get()
-            if title == "Striking accuracy" or title == "Takedown Accuracy":
-                percent = item.css('text.e-chart-circle__percent::text').get().strip()
-                info[title.lower()] = percent
-        return info
+            if title == "Striking accuracy":
+                itemLoader.add_value("str_acc", item.css('text.e-chart-circle__percent::text').get())
+            elif title == "Takedown Accuracy":
+                itemLoader.add_value("tkd_acc", item.css('text.e-chart-circle__percent::text').get())
+        return itemLoader.load_item()
 
-    def parse_additional_stats(self, response):
-        info = {"Sig. Str. Landed": 0, 
-                "Sig. Str. Absorbed": 0, 
-                "Takedown avg": 0, 
-                "Submission avg": 0, 
-                "Sig. Str. Defense": "0%", 
-                "Takedown Defense": "0%", 
-                "Knockdown Avg": 0, 
-                "Average fight time": "06:41"
-            }
+    def parse_additional_stats(self, response, itemLoader):
         for item in response.css('div[class*="c-stat-compare__group"]'):
             label = item.css('div.c-stat-compare__label::text').get()
-            value = item.css('div.c-stat-compare__number::text').get()
-            if label and value:
+            if label:
                 label = label.strip()
-                if label == "Sig. Str. Landed" or label == "Sig. Str. Absorbed" or label == "Takedown avg" or label == "Submission avg" or label == "Knockdown Avg":
-                    info[label] = float(value.strip())
-                elif label == "Sig. Str. Defense" or label == "Takedown Defense":
-                    info[label] = value.strip() + "%"
-                else:
-                    info[label] = value.strip()
-        return info
+                value = item.css('div.c-stat-compare__number::text').get()
+                if label == "Sig. Str. Landed": itemLoader.add_value("sig_str_landed", value)
+                elif label == "Sig. Str. Absorbed": itemLoader.add_value("sig_str_absorbed", value)
+                elif label == "Takedown avg": itemLoader.add_value("tkd_avg", value)
+                elif label == "Submission avg": itemLoader.add_value("sub_avg", value)
+                elif label == "Knockdown Avg": itemLoader.add_value("kd_avg", value)
+                elif label == "Sig. Str. Defense": itemLoader.add_value("sig_str_def", value)
+                elif label == "Takedown Defense": itemLoader.add_value("tkd_def", value)
+                elif label == "Average fight time": itemLoader.add_value("avg_fight_time", value.split())
+        return itemLoader.load_item()
 
             
+
