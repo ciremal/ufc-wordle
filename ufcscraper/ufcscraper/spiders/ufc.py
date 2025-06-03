@@ -13,18 +13,18 @@ class UfcSpider(CrawlSpider):
         Rule(LinkExtractor(allow=(r"athletes/all\?filters.*page=\d+")), callback='parse_fighter_pages', follow=True),
     )
 
-    page_count = 0
-    max_pages = 1
+    # page_count = 0
+    # max_pages = 10
 
     def parse_start_url(self, response):
         return self.parse_fighter_pages(response)
 
     def parse_fighter_pages(self, response):
-        if self.page_count >= self.max_pages:
-            self.crawler.engine.close_spider(self, reason="Reached max pages for testing")
-            return
-        
-        self.page_count += 1
+        # if self.page_count >= self.max_pages:
+        #     self.crawler.engine.close_spider(self, reason="Reached max pages for testing")
+        #     return
+        # self.page_count += 1
+
         for card in response.css("ul > li.l-flex__item"):
             fighter_page = card.css('div.c-listing-athlete-flipcard__action a::attr("href")').get()
             if fighter_page:
