@@ -6,6 +6,10 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 BOT_NAME = "ufcscraper"
 
@@ -64,9 +68,13 @@ ROBOTSTXT_OBEY = False
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "ufcscraper.pipelines.UfcscraperPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "ufcscraper.pipelines.UfcscraperPipeline": 300,
+}
+
+MONGO_URI = os.getenv('MONGO_URI')
+MONGO_DATABASE = os.getenv('MONGO_DATABASE')
+MONGO_COLLECTION = os.getenv('MONGO_COLLECTION')
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
