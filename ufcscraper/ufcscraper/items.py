@@ -17,16 +17,19 @@ def clean_values_int(value):
 def clean_values_float(value):
     return float(value.split(" ")[0])
 
+def format_str(value):
+    return value.lower()
+
 def format_values_percent(value):
     return value.split()[0] + "%"
 
 class UfcItem(scrapy.Item):
     name = scrapy.Field(
-        input_processor=MapCompose(remove_tags),
+        input_processor=MapCompose(remove_tags, format_str),
         output_processor=TakeFirst(),
     )
     division = scrapy.Field(
-        input_processor=MapCompose(remove_tags),
+        input_processor=MapCompose(remove_tags, format_str),
         output_processor=TakeFirst(),
     )
     record = scrapy.Field(
@@ -34,12 +37,15 @@ class UfcItem(scrapy.Item):
         output_processor=Identity(),
     )
     status = scrapy.Field(
+        input_processor=MapCompose(format_str),
         output_processor=TakeFirst(),
     )
     hometown = scrapy.Field(
+        input_processor=MapCompose(format_str),
         output_processor=TakeFirst(),
     )
     fighting_style = scrapy.Field(
+        input_processor=MapCompose(format_str),
         output_processor=TakeFirst(),
     )
     age = scrapy.Field(
@@ -55,6 +61,7 @@ class UfcItem(scrapy.Item):
         output_processor=TakeFirst(),
     )
     debut = scrapy.Field(
+        input_processor=MapCompose(format_str),
         output_processor=TakeFirst(),
     )
     reach = scrapy.Field(

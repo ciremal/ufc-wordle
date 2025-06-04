@@ -27,5 +27,12 @@ class UfcscraperPipeline:
         self.client.close()
 
     def process_item(self, item, spider):
+        string_fields = ["division", "status", "hometown", "fighting_style", "debut", "str_acc","tkd_acc","sig_str_def","tkd_def", "avg_fight_time"]
+        number_fields = ["age", "height", "weight", "reach", "leg_reach", "ko_tko", "dec", "sub", "standing", "clinch", "ground", "sig_str_landed", "sig_str_absorbed", "tkd_avg", "sub_avg", "kd_avg"]
+
+        for field in item.fields:
+            if field in string_fields: item.setdefault(field, '')
+            if field in number_fields: item.setdefault(field, 0)
+            if field == 'record': item.setdefault(field, [0,0,0])
         self.collection.insert_one(dict(item))
         return item
