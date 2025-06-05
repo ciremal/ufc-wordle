@@ -10,11 +10,5 @@
             "src": "/(.*)",
             "dest": "routes.py"
         }
-    ],
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/"
-        }
     ]
 }
