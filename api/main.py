@@ -7,7 +7,7 @@ app = FastAPI()
 items = []
 
 @app.get("/fighter/{fighter_name}", response_model=UfcFighter)
-def get_fighter(fighter_name: str) -> UfcFighter:
+async def get_fighter(fighter_name: str) -> UfcFighter:
     fighter = collection.find_one(
         {"name": fighter_name.replace("-"," ")}, 
         {"_id": False}
@@ -18,5 +18,5 @@ def get_fighter(fighter_name: str) -> UfcFighter:
         raise HTTPException(status_code=404, detail="Fighter not found")
 
 @app.get("/fighters")
-def get_fighters() -> list[UfcFighter]:
+async def get_fighters() -> list[UfcFighter]:
     return list(collection.find({}, {"_id": False}))
