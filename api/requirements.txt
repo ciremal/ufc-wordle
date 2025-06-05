@@ -1,5 +1,4 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pymongo
-scrapy
 python-dotenv
