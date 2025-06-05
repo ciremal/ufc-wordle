@@ -4,3 +4,4 @@ venv
 *.xml
 *.csv
 .env
+node_modules
