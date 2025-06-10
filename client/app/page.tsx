@@ -1,4 +1,4 @@
-import GuessTable from "@/components/GuessTable";
+import ClientHome from "@/components/ClientHome";
 
 export default function Home() {
   return (
@@ -8,19 +8,7 @@ export default function Home() {
         <h2 className="text-lg">A UFC Fighter guessing game</h2>
         <div className="border border-black mt-3 w-full"></div>
       </div>
-      <div className="py-20 w-[90%] flex justify-between">
-        <input
-          className="bg-white w-[60%] py-3 px-4"
-          placeholder="Guess The Fighter"
-        ></input>
-        <div className="flex gap-4">
-          <button className="border py-3 px-10 text-xl">Help</button>
-          <button className="border py-3 px-10 text-xl">About</button>
-        </div>
-      </div>
-      <div className="mt-20 w-[90%]">
-        <GuessTable />
-      </div>
+      <ClientHome />
     </div>
   );
 }
