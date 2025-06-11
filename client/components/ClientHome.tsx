@@ -162,9 +162,16 @@ const ClientHome = () => {
 
       <div className="w-[90%] flex justify-between">
         <Autocomplete
-          placeholder="Guess the fighter"
+          placeholder="Guess the fighter..."
           options={fighterNames}
-          sx={{ width: "50%", maxWidth: 800 }}
+          sx={{
+            width: "50%",
+            maxWidth: 800,
+            fontSize: "1.5rem",
+            borderColor: "var(--borderColor)",
+            borderWidth: 2,
+            borderRadius: 0,
+          }}
           filterOptions={filterOptions}
           onChange={(event, value) => handleGuess(event, value)}
           selectOnFocus
@@ -173,13 +180,13 @@ const ClientHome = () => {
         />
         <div className="flex gap-4">
           <button
-            className="border py-3 px-10 text-xl"
+            className="border py-3 px-10 text-xl bg-[#F17171] hover:brightness-90"
             onClick={() => handleInfoSection("help")}
           >
             Help
           </button>
           <button
-            className="border py-3 px-10 text-xl"
+            className="border py-3 px-10 text-xl bg-[#69B3AE] hover:brightness-90"
             onClick={() => handleInfoSection("about")}
           >
             About
@@ -188,11 +195,14 @@ const ClientHome = () => {
             defaultValue={1}
             sx={{
               minWidth: 125,
-              background: "transparent",
+              background: "#CCA2EB",
               borderColor: "black",
               fontSize: "1.25rem",
               color: "black",
               borderRadius: 0,
+              "&:hover": {
+                background: "#B689DA",
+              },
             }}
             onChange={handleDifficulty}
           >
@@ -201,7 +211,7 @@ const ClientHome = () => {
           </Select>
         </div>
       </div>
-      <div className="text-xl mt-10">{`Guess ${guesses.length}/8`}</div>
+      <div className="text-2xl mt-10">{`Guess ${guesses.length}/8`}</div>
       {gameState === 1 && (
         <div>
           Congrats! You guessed the fighter, {capitalize(selectedFighter.name)}
