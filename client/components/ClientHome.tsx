@@ -5,44 +5,28 @@ import GuessTable from "./GuessTable";
 import InfoSection from "./InfoSection";
 import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
 import { getAllFighters } from "@/api/fetchFighterInfo";
+import { compareStats } from "@/helpers/compare";
+import { capitalize, formatCountry } from "@/helpers/format";
 
 const ClientHome = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [fighters, setFighters] = useState<any[]>([]);
   const [guesses, setGuesses] = useState<any[]>([]);
+  const [selectedFighter, setSelectedFighter] = useState<any>();
 
-  const selectedFighter = {
-    _id: "68409a6788fa8b217084081c",
-    name: "drew dober",
-    division: "lightweight division",
-    record: [27, 15, 0],
-    status: "active",
-    hometown: "omaha, united states",
-    fighting_style: "freestyle",
-    age: 36,
-    height: 68,
-    weight: 155,
-    debut: "dec. 1, 2013",
-    reach: 70,
-    leg_reach: 35,
-    ko_tko: 15,
-    dec: 7,
-    sub: 5,
-    standing: 692,
-    clinch: 105,
-    ground: 92,
-    str_acc: "40%",
-    tkd_acc: "17%",
-    sig_str_landed: 4.36,
-    sig_str_absorbed: 4.33,
-    tkd_avg: 0.66,
-    sub_avg: 0.07,
-    sig_str_def: "51%",
-    tkd_def: "56%",
-    kd_avg: 0.66,
-    avg_fight_time: "07:51",
-  };
+  // 0 - game on, 1 - won game, 2 - lost game
+  const [gameState, setGameState] = useState(0);
+
+  //   const selectedFighter = {
+  //     name: "beneil dariush",
+  //     division: "lightweight division",
+  //     age: 36,
+  //     wins: 22,
+  //     losses: 6,
+  //     height: 70,
+  //     country: "iran",
+  //   };
 
   const handleInfoSection = (section: string) => {
     switch (section) {
@@ -61,7 +45,21 @@ const ClientHome = () => {
     e.preventDefault();
     if (value) {
       const fighter = fighters.find((f) => f.name === value);
-      setGuesses([...guesses, fighter]);
+
+      if (fighter.name === selectedFighter.name) {
+        setGameState(1);
+      } else {
+        if (guesses.length === 7) {
+          setGameState(2);
+        }
+      }
+
+      const keys = Object.keys(fighter);
+      const result = Object.fromEntries(
+        keys.map((key) => [key, compareStats(key, fighter, selectedFighter)])
+      );
+
+      setGuesses([...guesses, result]);
     }
   };
 
@@ -73,7 +71,22 @@ const ClientHome = () => {
           const [wins, losses, draws] = fighter.record;
           return wins + losses + draws >= 15;
         });
-        setFighters(filtered);
+
+        const filteredInfo = filtered.map((f: any) => {
+          const [wins, losses] = f.record;
+          return {
+            name: f.name,
+            division: f.division,
+            age: f.age,
+            wins: wins,
+            losses: losses,
+            height: f.height,
+            country: formatCountry(f.hometown),
+          };
+        });
+        const index = Math.floor(Math.random() * filteredInfo.length);
+        setFighters(filteredInfo);
+        setSelectedFighter(filteredInfo[index]);
       } catch (error) {
         console.error("Failed to fetch fighters:", error);
       }
@@ -128,7 +141,9 @@ const ClientHome = () => {
           sx={{ width: "50%", maxWidth: 800 }}
           filterOptions={filterOptions}
           onChange={(event, value) => handleGuess(event, value)}
-          clearOnEscape
+          selectOnFocus
+          clearOnBlur
+          disabled={gameState !== 0}
         />
         <div className="flex gap-4">
           <button
@@ -145,8 +160,20 @@ const ClientHome = () => {
           </button>
         </div>
       </div>
-
-      <div className="mt-20 w-[90%]">
+      <div className="text-xl mt-10">{`Guess ${guesses.length}/8`}</div>
+      {gameState === 1 && (
+        <div>
+          Congrats! You guessed the fighter, {capitalize(selectedFighter.name)}
+        </div>
+      )}
+      {gameState === 2 && (
+        <div>
+          {" "}
+          Sorry! You did not guess the fighter,{" "}
+          {capitalize(selectedFighter.name)}
+        </div>
+      )}
+      <div className="my-15 w-[90%]">
         <GuessTable fighters={guesses} />
       </div>
     </div>
