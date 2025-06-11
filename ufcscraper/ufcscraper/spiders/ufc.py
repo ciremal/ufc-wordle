@@ -3,6 +3,7 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from ..items import UfcItem
 from scrapy.loader import ItemLoader
+import re
 
 class UfcSpider(CrawlSpider):
     name = "ufc"
@@ -42,6 +43,7 @@ class UfcSpider(CrawlSpider):
         self.parse_sig_str_pos(response, itemLoader)
         self.parse_accuracy_stats(response, itemLoader)
         self.parse_additional_stats(response, itemLoader)
+        self.parse_rank(response, itemLoader)
 
         return itemLoader.load_item()
 
@@ -110,5 +112,13 @@ class UfcSpider(CrawlSpider):
                 elif label == "Average fight time": itemLoader.add_value("avg_fight_time", value.split())
         return itemLoader.load_item()
 
+    def parse_rank(self, response, itemLoader):
+        for item in response.css('p.hero-profile__tag'):
+            regex = r"#\d+\s+.*?Division"
+            label = item.css("::text").get().strip()
+            if re.match(regex, label) or label == "Title Holder":
+                cleaned_text = re.sub(r"\s+", " ", label)
+                itemLoader.add_value("rank", cleaned_text)
+        return itemLoader.load_item()
             
 

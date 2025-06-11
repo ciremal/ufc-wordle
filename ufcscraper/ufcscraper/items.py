@@ -133,3 +133,6 @@ class UfcItem(scrapy.Item):
     avg_fight_time = scrapy.Field(
         output_processor=TakeFirst(),
     )
+    rank = scrapy.Field(
+        output_processor=TakeFirst(),
+    )
