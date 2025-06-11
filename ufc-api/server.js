@@ -35,6 +35,10 @@ app.get("/", (req, res) => {
   res.send("Connected to my UFC API");
 });
 
+/**
+ * GET /fighter/:name
+ * Returns information about a specific fighter given their name
+ */
 app.get("/fighter/:name", async (req, res) => {
   const name = req.params.name;
   try {
@@ -52,6 +56,10 @@ app.get("/fighter/:name", async (req, res) => {
   }
 });
 
+/**
+ * GET /fighters
+ * Returns information about all available UFC fighters
+ */
 app.get("/fighters", async (req, res) => {
   try {
     const fighters = await collection.find().toArray();

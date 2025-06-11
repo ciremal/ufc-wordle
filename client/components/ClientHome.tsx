@@ -7,26 +7,19 @@ import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
 import { getAllFighters } from "@/api/fetchFighterInfo";
 import { compareStats } from "@/helpers/compare";
 import { capitalize, formatCountry } from "@/helpers/format";
+import { Option, Select } from "@mui/joy";
 
 const ClientHome = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [fighters, setFighters] = useState<any[]>([]);
+  const [rankedFighters, setRankedFighters] = useState<any[]>([]);
   const [guesses, setGuesses] = useState<any[]>([]);
   const [selectedFighter, setSelectedFighter] = useState<any>();
+  const [difficulty, setDifficulty] = useState(1);
 
   // 0 - game on, 1 - won game, 2 - lost game
   const [gameState, setGameState] = useState(0);
-
-  //   const selectedFighter = {
-  //     name: "beneil dariush",
-  //     division: "lightweight division",
-  //     age: 36,
-  //     wins: 22,
-  //     losses: 6,
-  //     height: 70,
-  //     country: "iran",
-  //   };
 
   const handleInfoSection = (section: string) => {
     switch (section) {
@@ -63,13 +56,23 @@ const ClientHome = () => {
     }
   };
 
+  const handleDifficulty = (
+    event: React.SyntheticEvent | null,
+    value: number | null
+  ) => {
+    event?.preventDefault();
+    if (value) {
+      setDifficulty(value);
+    }
+  };
+
   useEffect(() => {
     const fetchFighters = async () => {
       try {
         const data = await getAllFighters();
         const filtered = data.filter((fighter: any) => {
           const [wins, losses, draws] = fighter.record;
-          return wins + losses + draws >= 15;
+          return wins + losses + draws >= 15 || fighter.rank !== "";
         });
 
         const filteredInfo = filtered.map((f: any) => {
@@ -82,11 +85,16 @@ const ClientHome = () => {
             losses: losses,
             height: f.height,
             country: formatCountry(f.hometown),
+            rank: f.rank,
           };
         });
-        const index = Math.floor(Math.random() * filteredInfo.length);
         setFighters(filteredInfo);
-        setSelectedFighter(filteredInfo[index]);
+
+        const rankedFighters = filteredInfo.filter((f: any) => f.rank !== "");
+        setRankedFighters(rankedFighters);
+
+        const index = Math.floor(Math.random() * rankedFighters.length);
+        setSelectedFighter(rankedFighters[index]);
       } catch (error) {
         console.error("Failed to fetch fighters:", error);
       }
@@ -95,15 +103,29 @@ const ClientHome = () => {
     fetchFighters();
   }, []);
 
+  useEffect(() => {
+    if (difficulty === 1) {
+      const index = Math.floor(Math.random() * rankedFighters.length);
+      setSelectedFighter(rankedFighters[index]);
+    } else {
+      const index = Math.floor(Math.random() * fighters.length);
+      setSelectedFighter(fighters[index]);
+    }
+    setGuesses([]);
+  }, [difficulty]);
+
   const filterOptions = createFilterOptions({
     limit: 25,
   });
 
-  const fighterNames = fighters.map((f) => f.name);
+  const fighterNames =
+    difficulty === 1
+      ? rankedFighters.map((f) => f.name)
+      : fighters.map((f) => f.name);
 
   const helpDesc = (
     <ol className="list-decimal text-lg pl-10">
-      <li>Try to guess the UFC fighter in 7 guesses.</li>
+      <li>Try to guess the UFC fighter in 8 guesses.</li>
       <li>Green is an exact match.</li>
       <li>
         Yellow is a close match, where Age, Wins, Losses, or Height are off by
@@ -119,14 +141,18 @@ const ClientHome = () => {
   const aboutDesc = (
     <div className="text-center text-lg">
       Heavily inspired by the web-game Wordle, this version tests your knowledge
-      on UFC fighters. Because the range of UFC is so vast, the game is limited
-      to currently active fighters with more than 15 fights recorded on their
-      MMA record. Happy guessing!
+      on UFC fighters. There are two modes.{" "}
+      <span className="font-bold">Normal</span> mode contains only{" "}
+      <span className="font-bold">ranked </span>
+      fighters. <span className="font-bold">Hard</span> mode contains all
+      <span className="font-bold"> currently active</span> fighters with either{" "}
+      <span className="font-bold">more than 15</span> fights recorded on their
+      MMA record, or ranked. Happy guessing!
     </div>
   );
 
   return (
-    <div className="flex flex-col items-center gap-6 pt-8">
+    <div className="flex flex-col items-center gap-4 pt-8">
       <InfoSection children={helpDesc} title="How to Play" expand={showHelp} />
       <InfoSection
         children={aboutDesc}
@@ -158,6 +184,21 @@ const ClientHome = () => {
           >
             About
           </button>
+          <Select
+            defaultValue={1}
+            sx={{
+              minWidth: 125,
+              background: "transparent",
+              borderColor: "black",
+              fontSize: "1.25rem",
+              color: "black",
+              borderRadius: 0,
+            }}
+            onChange={handleDifficulty}
+          >
+            <Option value={1}>Normal</Option>
+            <Option value={2}>Hard</Option>
+          </Select>
         </div>
       </div>
       <div className="text-xl mt-10">{`Guess ${guesses.length}/8`}</div>
