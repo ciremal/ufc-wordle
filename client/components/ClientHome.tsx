@@ -36,7 +36,9 @@ const ClientHome = () => {
 
   const handleGuess = (e: SyntheticEvent<Element, Event>, value: any) => {
     e.preventDefault();
-    if (value) {
+
+    const exists = guesses.find((f) => f.name.value === value);
+    if (value && !exists) {
       const fighter = fighters.find((f) => f.name === value);
 
       if (fighter.name === selectedFighter.name) {
@@ -66,10 +68,47 @@ const ClientHome = () => {
     }
   };
 
+  // useEffect(() => {
+  //   const fetchFighters = async () => {
+  //     try {
+  //       const data = await getAllFighters();
+  //       const filtered = data.filter((fighter: any) => {
+  //         const [wins, losses, draws] = fighter.record;
+  //         return wins + losses + draws >= 15 || fighter.rank !== "";
+  //       });
+
+  //       const filteredInfo = filtered.map((f: any) => {
+  //         const [wins, losses] = f.record;
+  //         return {
+  //           name: f.name,
+  //           division: f.division,
+  //           age: f.age,
+  //           wins: wins,
+  //           losses: losses,
+  //           height: f.height,
+  //           country: formatCountry(f.hometown),
+  //           rank: f.rank,
+  //         };
+  //       });
+  //       setFighters(filteredInfo);
+
+  //       const rankedFighters = filteredInfo.filter((f: any) => f.rank !== "");
+  //       setRankedFighters(rankedFighters);
+
+  //       const index = Math.floor(Math.random() * rankedFighters.length);
+  //       setSelectedFighter(rankedFighters[index]);
+  //     } catch (error) {
+  //       console.error("Failed to fetch fighters:", error);
+  //     }
+  //   };
+
+  //   fetchFighters();
+  // }, []);
+
   useEffect(() => {
-    const fetchFighters = async () => {
-      try {
-        const data = await getAllFighters();
+    fetch("/ufc.json")
+      .then((res) => res.json())
+      .then((data) => {
         const filtered = data.filter((fighter: any) => {
           const [wins, losses, draws] = fighter.record;
           return wins + losses + draws >= 15 || fighter.rank !== "";
@@ -95,12 +134,7 @@ const ClientHome = () => {
 
         const index = Math.floor(Math.random() * rankedFighters.length);
         setSelectedFighter(rankedFighters[index]);
-      } catch (error) {
-        console.error("Failed to fetch fighters:", error);
-      }
-    };
-
-    fetchFighters();
+      });
   }, []);
 
   useEffect(() => {
@@ -152,7 +186,7 @@ const ClientHome = () => {
   );
 
   return (
-    <div className="flex flex-col items-center gap-4 pt-8">
+    <div className="flex flex-col items-center pt-8">
       <InfoSection children={helpDesc} title="How to Play" expand={showHelp} />
       <InfoSection
         children={aboutDesc}
@@ -160,7 +194,7 @@ const ClientHome = () => {
         expand={showAbout}
       />
 
-      <div className="w-[90%] flex justify-between">
+      <div className="w-[90%] flex justify-between mt-10">
         <Autocomplete
           placeholder="Guess the fighter..."
           options={fighterNames}
@@ -211,7 +245,7 @@ const ClientHome = () => {
           </Select>
         </div>
       </div>
-      <div className="text-2xl mt-10">{`Guess ${guesses.length}/8`}</div>
+      <div className="text-2xl mt-20">{`Guess ${guesses.length}/8`}</div>
       {gameState === 1 && (
         <div>
           Congrats! You guessed the fighter, {capitalize(selectedFighter.name)}

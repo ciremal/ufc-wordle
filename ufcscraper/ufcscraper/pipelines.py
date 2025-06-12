@@ -34,5 +34,5 @@ class UfcscraperPipeline:
             if field in string_fields: item.setdefault(field, '')
             if field in number_fields: item.setdefault(field, 0)
             if field == 'record': item.setdefault(field, [0,0,0])
-        self.collection.insert_one(dict(item))
+        # self.collection.insert_one(dict(item))
         return item
