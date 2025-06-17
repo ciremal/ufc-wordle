@@ -3,6 +3,7 @@ name: Scrape UFC Data
 on:
   schedule:
     - cron: "*/5 * * * *" # Every day at midnight UTC
+  workflow_dispatch:
 
 jobs:
   run-scraper:
