@@ -1,0 +1,40 @@
+name: Scrape UFC Data
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Every day at midnight UTC
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - name: set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: remove old file
+        run: |
+          rm ./client/public/ufc.json
+
+      - name: Run Scrapy spider
+        working-directory: ./ufcscraper
+        run: |
+          scrapy crawl ufc -o ../client/public/ufc.json
+
+      - name: commit and push updated file
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add -A
+          git commit -m "Auto-update ufc.json file" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
