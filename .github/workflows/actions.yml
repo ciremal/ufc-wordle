@@ -2,7 +2,7 @@ name: Scrape UFC Data
 
 on:
   schedule:
-    - cron: "0 0 * * SUN" # Every Sunday
+    - cron: "0 8 * * SUN" # Every Sunday
   workflow_dispatch:
 
 jobs:
