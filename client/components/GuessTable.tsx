@@ -4,16 +4,17 @@ import { Table } from "@mui/joy";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { capitalize } from "@/helpers/format";
+import { Guess } from "@/types/fighter";
 
 type GuessTableProps = {
-  fighters: any[];
+  fighters: Guess[];
 };
 
 const getHint = (hint: string) => {
   return hint === "down" ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />;
 };
 
-const getColor = (color: string) => {
+const getColor = (color: string | null | undefined) => {
   return color === "green"
     ? "bg-green-400"
     : color === "yellow"
@@ -46,7 +47,7 @@ const GuessTable = ({ fighters }: GuessTableProps) => {
                   fighter.name.color
                 )}`}
               >
-                {capitalize(fighter.name.value)}
+                {capitalize(fighter.name.value as string)}
               </div>
             </td>
             <td>
@@ -55,7 +56,7 @@ const GuessTable = ({ fighters }: GuessTableProps) => {
                   fighter.division.color
                 )}`}
               >
-                {capitalize(fighter.division.value)}
+                {capitalize(fighter.division.value as string)}
               </div>
             </td>
             <td>
@@ -100,7 +101,7 @@ const GuessTable = ({ fighters }: GuessTableProps) => {
                   fighter.country.color
                 )}`}
               >
-                {capitalize(fighter.country.value)}
+                {capitalize(fighter.country.value as string)}
               </div>
             </td>
           </tr>

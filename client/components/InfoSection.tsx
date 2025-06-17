@@ -6,7 +6,7 @@ type InfoSectionProps = {
   expand: boolean;
 };
 
-const InfoSection = ({ title, children, expand }: InfoSectionProps) => {
+const InfoSection = ({ title, expand, children }: InfoSectionProps) => {
   return (
     <div
       className={`transition-all duration-500 border px-10 w-[50%] overflow-hidden ${

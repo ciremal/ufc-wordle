@@ -4,6 +4,9 @@ export const formatCountry = (hometown: string) => {
 };
 
 export const capitalize = (word: string) => {
+  if (!word) {
+    return;
+  }
   const splitWord = word.split(" ");
   const capitalizedWords = splitWord.map((w) => {
     return w.charAt(0).toUpperCase() + w.slice(1);

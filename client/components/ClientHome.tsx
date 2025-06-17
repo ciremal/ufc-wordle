@@ -4,18 +4,19 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import GuessTable from "./GuessTable";
 import InfoSection from "./InfoSection";
 import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
-import { getAllFighters } from "@/api/fetchFighterInfo";
+// import { getAllFighters } from "@/api/fetchFighterInfo";
 import { compareStats } from "@/helpers/compare";
 import { capitalize, formatCountry } from "@/helpers/format";
 import { Option, Select } from "@mui/joy";
+import { Fighter, FormattedFighter, Guess } from "@/types/fighter";
 
 const ClientHome = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [fighters, setFighters] = useState<any[]>([]);
-  const [rankedFighters, setRankedFighters] = useState<any[]>([]);
-  const [guesses, setGuesses] = useState<any[]>([]);
-  const [selectedFighter, setSelectedFighter] = useState<any>();
+  const [fighters, setFighters] = useState<FormattedFighter[]>([]);
+  const [rankedFighters, setRankedFighters] = useState<FormattedFighter[]>([]);
+  const [guesses, setGuesses] = useState<Guess[]>([]);
+  const [selectedFighter, setSelectedFighter] = useState<FormattedFighter>();
   const [difficulty, setDifficulty] = useState(1);
 
   // 0 - game on, 1 - won game, 2 - lost game
@@ -34,12 +35,18 @@ const ClientHome = () => {
     }
   };
 
-  const handleGuess = (e: SyntheticEvent<Element, Event>, value: any) => {
-    e.preventDefault();
+  console.log(guesses);
 
+  const handleGuess = (
+    e: SyntheticEvent<Element, Event>,
+    value: string | unknown
+  ) => {
     const exists = guesses.find((f) => f.name.value === value);
     if (value && !exists) {
       const fighter = fighters.find((f) => f.name === value);
+      if (!fighter || !selectedFighter) {
+        return;
+      }
 
       if (fighter.name === selectedFighter.name) {
         setGameState(1);
@@ -50,11 +57,25 @@ const ClientHome = () => {
       }
 
       const keys = Object.keys(fighter);
-      const result = Object.fromEntries(
-        keys.map((key) => [key, compareStats(key, fighter, selectedFighter)])
-      );
+      const resultEntries = keys.map((key) => [
+        key,
+        compareStats(key, fighter, selectedFighter),
+      ]);
+      const result = Object.fromEntries(resultEntries);
 
-      setGuesses([...guesses, result]);
+      setGuesses([
+        ...guesses,
+        {
+          name: result.name,
+          division: result.division,
+          age: result.age,
+          wins: result.wins,
+          losses: result.losses,
+          height: result.height,
+          country: result.country,
+          rank: result.rank,
+        } as Guess,
+      ]);
     }
   };
 
@@ -109,12 +130,12 @@ const ClientHome = () => {
     fetch("/ufc.json")
       .then((res) => res.json())
       .then((data) => {
-        const filtered = data.filter((fighter: any) => {
+        const filtered = data.filter((fighter: Fighter) => {
           const [wins, losses, draws] = fighter.record;
           return wins + losses + draws >= 15 || fighter.rank !== "";
         });
 
-        const filteredInfo = filtered.map((f: any) => {
+        const filteredInfo = filtered.map((f: Fighter) => {
           const [wins, losses] = f.record;
           return {
             name: f.name,
@@ -129,7 +150,9 @@ const ClientHome = () => {
         });
         setFighters(filteredInfo);
 
-        const rankedFighters = filteredInfo.filter((f: any) => f.rank !== "");
+        const rankedFighters = filteredInfo.filter(
+          (f: FormattedFighter) => f.rank !== ""
+        );
         setRankedFighters(rankedFighters);
 
         const index = Math.floor(Math.random() * rankedFighters.length);
@@ -187,12 +210,12 @@ const ClientHome = () => {
 
   return (
     <div className="flex flex-col items-center pt-8">
-      <InfoSection children={helpDesc} title="How to Play" expand={showHelp} />
-      <InfoSection
-        children={aboutDesc}
-        title="Welcome to UFClue!"
-        expand={showAbout}
-      />
+      <InfoSection title="How to Play" expand={showHelp}>
+        {helpDesc}
+      </InfoSection>
+      <InfoSection title="Welcome to UFClue!" expand={showAbout}>
+        {aboutDesc}
+      </InfoSection>
 
       <div className="w-[90%] flex justify-between mt-10">
         <Autocomplete
@@ -248,14 +271,15 @@ const ClientHome = () => {
       <div className="text-2xl mt-20">{`Guess ${guesses.length}/8`}</div>
       {gameState === 1 && (
         <div>
-          Congrats! You guessed the fighter, {capitalize(selectedFighter.name)}
+          Congrats! You guessed the fighter,{" "}
+          {capitalize(selectedFighter?.name ?? "")}
         </div>
       )}
       {gameState === 2 && (
         <div>
           {" "}
           Sorry! You did not guess the fighter,{" "}
-          {capitalize(selectedFighter.name)}
+          {capitalize(selectedFighter?.name ?? "")}
         </div>
       )}
       <div className="my-15 w-[90%]">
