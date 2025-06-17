@@ -31,10 +31,15 @@ jobs:
         run: |
           scrapy crawl ufc -o ../client/public/ufc.json
 
-      - name: commit and push updated file
+      - name: Configure Git
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
-          git add -A
-          git commit -m "Auto-update ufc.json file" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git add .
+          git commit -m "Auto-update ufc.json file"
+          git push
