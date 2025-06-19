@@ -1,6 +1,8 @@
 import type { Viewport, Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import Head from "next/head";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -88,12 +90,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <Head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "WebSite",
+              name: "UFClue",
+              url: "https://ufc-wordle.vercel.app/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "{search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        ></script>
+      </Head>
       <body
         className={`${spaceGrotesk.variable} antialiased`}
         suppressHydrationWarning
       >
         {children}
       </body>
+      {/* <GoogleAnalytics gaId="G-QWY1FDBMT7" /> */}
     </html>
   );
 }

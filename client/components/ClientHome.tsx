@@ -34,8 +34,6 @@ const ClientHome = () => {
     }
   };
 
-  console.log(guesses);
-
   const handleGuess = (
     e: SyntheticEvent<Element, Event>,
     value: string | unknown
