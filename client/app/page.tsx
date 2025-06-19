@@ -1,5 +1,4 @@
 import ClientHome from "@/components/ClientHome";
-import Head from "next/head";
 
 export default function Home() {
   return (
