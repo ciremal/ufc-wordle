@@ -4,7 +4,6 @@ import { SyntheticEvent, useEffect, useState } from "react";
 import GuessTable from "./GuessTable";
 import InfoSection from "./InfoSection";
 import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
-// import { getAllFighters } from "@/api/fetchFighterInfo";
 import { compareStats } from "@/helpers/compare";
 import { capitalize, formatCountry } from "@/helpers/format";
 import { Option, Select } from "@mui/joy";
@@ -88,43 +87,6 @@ const ClientHome = () => {
       setDifficulty(value);
     }
   };
-
-  // useEffect(() => {
-  //   const fetchFighters = async () => {
-  //     try {
-  //       const data = await getAllFighters();
-  //       const filtered = data.filter((fighter: any) => {
-  //         const [wins, losses, draws] = fighter.record;
-  //         return wins + losses + draws >= 15 || fighter.rank !== "";
-  //       });
-
-  //       const filteredInfo = filtered.map((f: any) => {
-  //         const [wins, losses] = f.record;
-  //         return {
-  //           name: f.name,
-  //           division: f.division,
-  //           age: f.age,
-  //           wins: wins,
-  //           losses: losses,
-  //           height: f.height,
-  //           country: formatCountry(f.hometown),
-  //           rank: f.rank,
-  //         };
-  //       });
-  //       setFighters(filteredInfo);
-
-  //       const rankedFighters = filteredInfo.filter((f: any) => f.rank !== "");
-  //       setRankedFighters(rankedFighters);
-
-  //       const index = Math.floor(Math.random() * rankedFighters.length);
-  //       setSelectedFighter(rankedFighters[index]);
-  //     } catch (error) {
-  //       console.error("Failed to fetch fighters:", error);
-  //     }
-  //   };
-
-  //   fetchFighters();
-  // }, []);
 
   useEffect(() => {
     fetch("/ufc.json")
