@@ -7,8 +7,9 @@ import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
 import { compareStats } from "@/helpers/compare";
 import { capitalize, formatCountry } from "@/helpers/format";
 import { Fighter, FormattedFighter, Guess } from "@/types/fighter";
+import { GameState } from "@/types/game";
 import { getDailyFighter } from "@/helpers/dailyFighter";
-import { Timer } from "./Timer";
+import GameStateResult from "./GameStateResult";
 
 const ClientHome = () => {
   const [showHelp, setShowHelp] = useState(false);
@@ -16,11 +17,11 @@ const ClientHome = () => {
   const [fighters, setFighters] = useState<FormattedFighter[]>([]);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [selectedFighter, setSelectedFighter] = useState<FormattedFighter>();
+  const [gameState, setGameState] = useState<GameState>(GameState.Playing);
 
   const maxGuesses = 10;
+  const today = new Date().toISOString().slice(0, 10);
 
-  // 0 - game on, 1 - won game, 2 - lost game
-  const [gameState, setGameState] = useState(0);
   const handleInfoSection = (section: string) => {
     switch (section) {
       case "help":
@@ -46,10 +47,10 @@ const ClientHome = () => {
       }
 
       if (fighter.name === selectedFighter.name) {
-        setGameState(1);
+        setGameState(GameState.Won);
       } else {
         if (guesses.length === maxGuesses - 1) {
-          setGameState(2);
+          setGameState(GameState.Lost);
         }
       }
 
@@ -77,6 +78,21 @@ const ClientHome = () => {
   };
 
   useEffect(() => {
+    const checkGameState = localStorage.getItem(today);
+    if (checkGameState) {
+      const gameStateInfo = JSON.parse(checkGameState);
+      switch (gameStateInfo.result) {
+        case "won":
+          setGameState(GameState.Won);
+          break;
+        case "lost":
+          setGameState(GameState.Lost);
+        default:
+          break;
+      }
+      setGuesses(gameStateInfo.guesses);
+    }
+
     fetch("/ufc.json")
       .then((res) => res.json())
       .then((data) => {
@@ -87,7 +103,7 @@ const ClientHome = () => {
         const filteredInfo = filtered.map((f: Fighter) => {
           const [wins, losses] = f.record;
           return {
-            name: f.name,
+            name: capitalize(f.name),
             division: f.division,
             age: f.age,
             wins: wins,
@@ -101,6 +117,21 @@ const ClientHome = () => {
         setSelectedFighter(getDailyFighter(filteredInfo));
       });
   }, []);
+
+  useEffect(() => {
+    const checkLocalStorage = localStorage.getItem(today);
+    if (checkLocalStorage) {
+      return;
+    }
+
+    if (gameState !== GameState.Playing) {
+      const todayInfo = {
+        result: gameState,
+        guesses: guesses,
+      };
+      localStorage.setItem(today, JSON.stringify(todayInfo));
+    }
+  }, [gameState]);
 
   const filterOptions = createFilterOptions({
     limit: 25,
@@ -158,7 +189,7 @@ const ClientHome = () => {
           onChange={(event, value) => handleGuess(event, value)}
           selectOnFocus
           clearOnBlur
-          disabled={gameState !== 0}
+          disabled={gameState !== GameState.Playing}
         />
         <div className="flex gap-4">
           <button
@@ -176,27 +207,12 @@ const ClientHome = () => {
         </div>
       </div>
       <div className="text-2xl mt-20">{`Guess ${guesses.length}/${maxGuesses}`}</div>
-      {gameState === 1 && (
-        <div className="flex flex-col items-center gap-4 text-lg">
-          <div>
-            {" "}
-            Congrats! You guessed the fighter,{" "}
-            {capitalize(selectedFighter?.name ?? "")}.
-          </div>
-          <div>
-            <Timer />
-          </div>
-        </div>
-      )}
-      {gameState === 2 && (
-        <div>
-          {" "}
-          Sorry! You did not guess the fighter,{" "}
-          {capitalize(selectedFighter?.name ?? "")}
-        </div>
-      )}
+      <GameStateResult
+        gameState={gameState}
+        selectedFighter={selectedFighter}
+      />
       <div className="my-15 w-[90%]">
-        <GuessTable fighters={guesses} />
+        <GuessTable fighters={guesses} gameState={gameState} />
       </div>
     </div>
   );

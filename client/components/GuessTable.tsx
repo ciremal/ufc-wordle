@@ -5,9 +5,11 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import { capitalize } from "@/helpers/format";
 import { Guess } from "@/types/fighter";
+import { GameState } from "@/types/game";
 
 type GuessTableProps = {
   fighters: Guess[];
+  gameState: GameState;
 };
 
 const getHint = (hint: string) => {
@@ -24,7 +26,7 @@ const getColor = (color: string | null | undefined) => {
 
 const tableItemClass = `w-full flex items-center gap-2 px-4 py-1`;
 
-const GuessTable = ({ fighters }: GuessTableProps) => {
+const GuessTable = ({ fighters, gameState }: GuessTableProps) => {
   return (
     <Table>
       <thead>
@@ -40,7 +42,14 @@ const GuessTable = ({ fighters }: GuessTableProps) => {
       </thead>
       <tbody>
         {fighters.map((fighter) => (
-          <tr key={fighter.name.value} className="text-lg">
+          <tr
+            key={fighter.name.value}
+            className={`text-lg ${
+              gameState === GameState.Won
+                ? `last:${getColor("green")} last:font-bold`
+                : ""
+            }`}
+          >
             <td>
               <div
                 className={`w-full flex items-center px-4 py-1 ${getColor(
