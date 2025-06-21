@@ -157,10 +157,11 @@ const ClientHome = () => {
   const aboutDesc = (
     <div className="text-center text-lg">
       Heavily inspired by the web-game Wordle, this version tests your knowledge
-      on UFC fighters. Because there are so many UFC fighters, with many of them
-      who still unknown even to frequent watchers, this list contains only
-      <span className="font-bold"> ranked fighters</span> across all divisions.
-      This may be changed in coming updates. Happy guessing!
+      on UFC fighters. Everyday, a new fighter will be picked. Because there are
+      so many UFC fighters, with many of them who are still unknown even to
+      frequent watchers, this list contains only
+      <span className="font-bold"> currently ranked fighters</span> across all
+      divisions. This may be changed in coming updates. Happy guessing!
     </div>
   );
 
@@ -173,17 +174,25 @@ const ClientHome = () => {
         {aboutDesc}
       </InfoSection>
 
-      <div className="w-[90%] flex justify-between mt-10">
+      <div className="w-[90%] flex flex-col-reverse items-center gap-3 mt-10 md:justify-between md:flex-row md:items-stretch">
         <Autocomplete
           placeholder="Guess the fighter..."
           options={fighterNames}
           sx={{
-            width: "50%",
+            width: {
+              xs: "100%",
+              sm: "75%",
+              lg: "50%",
+            },
             maxWidth: 800,
             fontSize: "1.5rem",
             borderColor: "var(--borderColor)",
             borderWidth: 2,
             borderRadius: 0,
+            paddingY: {
+              xs: 1,
+              lg: 0,
+            },
           }}
           filterOptions={filterOptions}
           onChange={(event, value) => handleGuess(event, value)}
@@ -206,12 +215,13 @@ const ClientHome = () => {
           </button>
         </div>
       </div>
+
       <div className="text-2xl mt-20">{`Guess ${guesses.length}/${maxGuesses}`}</div>
       <GameStateResult
         gameState={gameState}
         selectedFighter={selectedFighter}
       />
-      <div className="my-15 w-[90%]">
+      <div className="my-15 md:w-[90%]">
         <GuessTable fighters={guesses} gameState={gameState} />
       </div>
     </div>

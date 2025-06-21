@@ -13,7 +13,7 @@ const GameStateResult = ({
   selectedFighter,
 }: GameStateResultProps) => {
   return (
-    <div>
+    <div className="text-center">
       {gameState === GameState.Won && (
         <div className="flex flex-col items-center gap-4 text-lg">
           <div>

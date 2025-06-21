@@ -3,7 +3,7 @@
 import { Table } from "@mui/joy";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { capitalize } from "@/helpers/format";
+import { capitalize, formatDivision } from "@/helpers/format";
 import { Guess } from "@/types/fighter";
 import { GameState } from "@/types/game";
 
@@ -13,103 +13,94 @@ type GuessTableProps = {
 };
 
 const getHint = (hint: string) => {
-  return hint === "down" ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />;
+  return hint === "down" ? (
+    <ArrowDownwardIcon fontSize="inherit" />
+  ) : (
+    <ArrowUpwardIcon fontSize="inherit" />
+  );
 };
 
-const getColor = (color: string | null | undefined) => {
-  return color === "green"
-    ? "bg-green-400"
-    : color === "yellow"
-    ? "bg-yellow-300"
-    : "";
-};
-
-const tableItemClass = `w-full flex items-center gap-2 px-4 py-1`;
+const tableItemClass = `w-full flex items-center text-center py-1 md:gap-2 md:px-4 md:text-start `;
 
 const GuessTable = ({ fighters, gameState }: GuessTableProps) => {
   return (
     <Table>
       <thead>
-        <tr className="text-lg">
-          <th>Fighter Name</th>
-          <th>Division</th>
+        <tr className="text-sm md:text-lg">
+          <th>
+            <span className="hidden md:inline">Fighter Name</span>
+            <span className="inline md:hidden">Name</span>
+          </th>
+          <th>
+            <span className="hidden md:inline">Division</span>
+            <span className="inline md:hidden">Div.</span>
+          </th>
           <th>Age</th>
-          <th>Wins</th>
-          <th>Losses</th>
-          <th>Height (In)</th>
-          <th>Country</th>
+          <th>Win</th>
+          <th>Loss</th>
+          <th>
+            <span className="hidden md:inline">Height (In)</span>
+            <span className="inline md:hidden">Ht</span>
+          </th>
+          <th>
+            <span className="hidden md:inline">Country</span>
+            <span className="inline md:hidden">Ctry</span>
+          </th>
         </tr>
       </thead>
       <tbody>
         {fighters.map((fighter) => (
           <tr
             key={fighter.name.value}
-            className={`text-lg ${
+            className={`text-xs md:text-lg ${
               gameState === GameState.Won
-                ? `last:${getColor("green")} last:font-bold`
+                ? `last:bg-green-400 last:font-bold`
                 : ""
             }`}
           >
             <td>
               <div
-                className={`w-full flex items-center px-4 py-1 ${getColor(
-                  fighter.name.color
-                )}`}
+                className={`w-full flex items-center md:px-4 py-1 ${fighter.name.color}`}
               >
                 {capitalize(fighter.name.value as string)}
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(
-                  fighter.division.color
-                )}`}
-              >
-                {capitalize(fighter.division.value as string)}
+              <div className={`${tableItemClass} ${fighter.division.color}`}>
+                <span className="hidden md:inline">
+                  {capitalize(fighter.division.value as string)}
+                </span>
+                <span className="inline md:hidden">
+                  {formatDivision(capitalize(fighter.division.value as string))}
+                </span>
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(fighter.age.color)}`}
-              >
+              <div className={`${tableItemClass} ${fighter.age.color}`}>
                 {fighter.age.value}
                 {fighter.age.hint && getHint(fighter.age.hint)}
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(fighter.wins.color)}`}
-              >
+              <div className={`${tableItemClass} ${fighter.wins.color}`}>
                 {fighter.wins.value}
                 {fighter.wins.hint && getHint(fighter.wins.hint)}
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(
-                  fighter.losses.color
-                )}`}
-              >
+              <div className={`${tableItemClass} ${fighter.losses.color}`}>
                 {fighter.losses.value}
                 {fighter.losses.hint && getHint(fighter.losses.hint)}
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(
-                  fighter.height.color
-                )}`}
-              >
+              <div className={`${tableItemClass} ${fighter.height.color}`}>
                 {fighter.height.value}
                 {fighter.height.hint && getHint(fighter.height.hint)}
               </div>
             </td>
             <td>
-              <div
-                className={`${tableItemClass} ${getColor(
-                  fighter.country.color
-                )}`}
-              >
+              <div className={`${tableItemClass} ${fighter.country.color}`}>
                 {capitalize(fighter.country.value as string)}
               </div>
             </td>

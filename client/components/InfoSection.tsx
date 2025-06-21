@@ -9,7 +9,7 @@ type InfoSectionProps = {
 const InfoSection = ({ title, expand, children }: InfoSectionProps) => {
   return (
     <div
-      className={`transition-all duration-500 border px-10 w-[50%] overflow-hidden ${
+      className={`transition-all duration-500 border px-10 md:w-[50%] overflow-hidden ${
         !expand ? "max-h-0 py-0 border-0" : "max-h-full py-5 border"
       } `}
     >

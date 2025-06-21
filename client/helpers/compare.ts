@@ -5,25 +5,28 @@ export const compareStats = (
 ) => {
   const guessStat = guessedFighter[key];
   const selectedFighterStat = selectedFighter[key];
+  const green = "bg-green-400";
+  const yellow = "bg-yellow-300";
+
   if (key === "wins" || key === "losses" || key === "height" || key === "age") {
     if (guessStat === selectedFighterStat) {
-      return { value: guessStat, color: "green", hint: null };
+      return { value: guessStat, color: green, hint: null };
     } else {
       const greater = guessStat > selectedFighterStat;
       const close = Math.abs(guessStat - selectedFighterStat) <= 2;
       if (greater && close) {
-        return { value: guessStat, color: "yellow", hint: "down" };
+        return { value: guessStat, color: yellow, hint: "down" };
       } else if (greater && !close) {
         return { value: guessStat, color: null, hint: "down" };
       } else if (!greater && close) {
-        return { value: guessStat, color: "yellow", hint: "up" };
+        return { value: guessStat, color: yellow, hint: "up" };
       } else {
         return { value: guessStat, color: null, hint: "up" };
       }
     }
   } else {
     if (guessStat === selectedFighterStat) {
-      return { value: guessStat, color: "green", hint: null };
+      return { value: guessStat, color: green, hint: null };
     } else {
       return { value: guessStat, color: null, hint: null };
     }
