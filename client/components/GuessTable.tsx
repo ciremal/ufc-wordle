@@ -20,8 +20,6 @@ const getHint = (hint: string) => {
   );
 };
 
-const tableItemClass = `w-full flex items-center text-center py-1 md:gap-2 md:px-4 md:text-start `;
-
 const GuessTable = ({ fighters, gameState }: GuessTableProps) => {
   return (
     <Table>
@@ -66,7 +64,7 @@ const GuessTable = ({ fighters, gameState }: GuessTableProps) => {
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.division.color}`}>
+              <div className={`table-item ${fighter.division.color}`}>
                 <span className="hidden md:inline">
                   {capitalize(fighter.division.value as string)}
                 </span>
@@ -76,31 +74,31 @@ const GuessTable = ({ fighters, gameState }: GuessTableProps) => {
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.age.color}`}>
+              <div className={`table-item ${fighter.age.color}`}>
                 {fighter.age.value}
                 {fighter.age.hint && getHint(fighter.age.hint)}
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.wins.color}`}>
+              <div className={`table-item ${fighter.wins.color}`}>
                 {fighter.wins.value}
                 {fighter.wins.hint && getHint(fighter.wins.hint)}
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.losses.color}`}>
+              <div className={`table-item ${fighter.losses.color}`}>
                 {fighter.losses.value}
                 {fighter.losses.hint && getHint(fighter.losses.hint)}
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.height.color}`}>
+              <div className={`table-item ${fighter.height.color}`}>
                 {fighter.height.value}
                 {fighter.height.hint && getHint(fighter.height.hint)}
               </div>
             </td>
             <td>
-              <div className={`${tableItemClass} ${fighter.country.color}`}>
+              <div className={`table-item ${fighter.country.color}`}>
                 {capitalize(fighter.country.value as string)}
               </div>
             </td>

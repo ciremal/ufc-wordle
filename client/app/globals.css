@@ -18,3 +18,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-space-grotesk);
 }
+
+.stat-metric {
+  @apply text-2xl font-bold
+}
+
+.table-item {
+  @apply w-full flex items-center text-center py-1 md:gap-2 md:px-4 md:text-start
+}

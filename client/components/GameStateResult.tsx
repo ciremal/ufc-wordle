@@ -5,20 +5,17 @@ import { Timer } from "./Timer";
 
 type GameStateResultProps = {
   gameState: GameState;
-  selectedFighter: FormattedFighter | undefined;
+  dailyFighter: FormattedFighter | undefined;
 };
 
-const GameStateResult = ({
-  gameState,
-  selectedFighter,
-}: GameStateResultProps) => {
+const GameStateResult = ({ gameState, dailyFighter }: GameStateResultProps) => {
   return (
     <div className="text-center">
       {gameState === GameState.Won && (
         <div className="flex flex-col items-center gap-4 text-lg">
           <div>
             Congrats! You guessed the fighter,{" "}
-            {capitalize(selectedFighter?.name ?? "")}.
+            {capitalize(dailyFighter?.name ?? "")}.
           </div>
           <div>
             <Timer />
@@ -28,7 +25,7 @@ const GameStateResult = ({
       {gameState === GameState.Lost && (
         <div>
           Sorry! You did not guess the fighter,{" "}
-          {capitalize(selectedFighter?.name ?? "")}
+          {capitalize(dailyFighter?.name ?? "")}
         </div>
       )}
     </div>

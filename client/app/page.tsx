@@ -2,7 +2,7 @@ import ClientHome from "@/components/ClientHome";
 
 export default function Home() {
   return (
-    <div className="h-screen flex flex-col items-center my-10 md:mx-45 mx-6">
+    <div className="h-screen flex flex-col items-center my-5 md:mx-45 mx-6">
       <div className="flex flex-col items-center w-full">
         <h1 className="text-7xl font-bold">UFClue</h1>
         <h2 className="text-2xl">A UFC Fighter guessing game</h2>
