@@ -3,3 +3,10 @@ export enum GameState {
   Won = "won",
   Lost = "lost",
 }
+
+export type GameStats = {
+  gamesPlayed: number;
+  wins: number;
+  streak: number;
+  longestStreak: number;
+};

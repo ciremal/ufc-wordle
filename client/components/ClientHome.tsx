@@ -7,17 +7,24 @@ import Autocomplete, { createFilterOptions } from "@mui/joy/Autocomplete";
 import { compareStats } from "@/helpers/compare";
 import { capitalize, formatCountry } from "@/helpers/format";
 import { Fighter, FormattedFighter, Guess } from "@/types/fighter";
-import { GameState } from "@/types/game";
+import { GameState, GameStats } from "@/types/game";
 import { getDailyFighter } from "@/helpers/dailyFighter";
 import GameStateResult from "./GameStateResult";
 
 const ClientHome = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const [fighters, setFighters] = useState<FormattedFighter[]>([]);
   const [guesses, setGuesses] = useState<Guess[]>([]);
   const [selectedFighter, setSelectedFighter] = useState<FormattedFighter>();
   const [gameState, setGameState] = useState<GameState>(GameState.Playing);
+  const [stats, setStats] = useState<GameStats>({
+    gamesPlayed: 0,
+    wins: 0,
+    streak: 0,
+    longestStreak: 0,
+  });
 
   const maxGuesses = 10;
   const today = new Date().toISOString().slice(0, 10);
@@ -27,11 +34,17 @@ const ClientHome = () => {
       case "help":
         setShowHelp(!showHelp);
         setShowAbout(false);
+        setShowStats(false);
         break;
       case "about":
         setShowAbout(!showAbout);
         setShowHelp(false);
+        setShowStats(false);
         break;
+      case "stats":
+        setShowStats(!showStats);
+        setShowAbout(false);
+        setShowHelp(false);
     }
   };
 
@@ -77,7 +90,20 @@ const ClientHome = () => {
     }
   };
 
+  const updateStat = (key: keyof GameStats, value: number) => {
+    localStorage.setItem(key, value.toString());
+    setStats((prev) => ({ ...prev, [key]: value }));
+  };
+
   useEffect(() => {
+    const storedStats: GameStats = {
+      gamesPlayed: parseInt(localStorage.getItem("gamesPlayed") || "0"),
+      wins: parseInt(localStorage.getItem("wins") || "0"),
+      streak: parseInt(localStorage.getItem("streak") || "0"),
+      longestStreak: parseInt(localStorage.getItem("longestStreak") || "0"),
+    };
+    setStats(storedStats);
+
     const checkGameState = localStorage.getItem(today);
     if (checkGameState) {
       const gameStateInfo = JSON.parse(checkGameState);
@@ -120,6 +146,7 @@ const ClientHome = () => {
 
   useEffect(() => {
     const checkLocalStorage = localStorage.getItem(today);
+    // Already exists
     if (checkLocalStorage) {
       return;
     }
@@ -130,6 +157,22 @@ const ClientHome = () => {
         guesses: guesses,
       };
       localStorage.setItem(today, JSON.stringify(todayInfo));
+      switch (gameState) {
+        case GameState.Won:
+          updateStat("gamesPlayed", stats.gamesPlayed + 1);
+          updateStat("wins", stats.wins + 1);
+          updateStat("streak", stats.streak + 1);
+          if (stats.streak + 1 > stats.longestStreak) {
+            updateStat("longestStreak", stats.longestStreak + 1);
+          }
+          break;
+        case GameState.Lost:
+          updateStat("gamesPlayed", stats.gamesPlayed + 1);
+          updateStat("streak", 0);
+          break;
+        default:
+          break;
+      }
     }
   }, [gameState]);
 
@@ -165,6 +208,29 @@ const ClientHome = () => {
     </div>
   );
 
+  const statMetric = "text-2xl font-bold";
+
+  const statsDesc = (
+    <div className="grid grid-cols-2 gap-4 text-lg">
+      <div>
+        <div>Games Played</div>
+        <div className={statMetric}>{stats.gamesPlayed}</div>
+      </div>
+      <div>
+        <div>Wins</div>
+        <div className={statMetric}>{stats.wins}</div>
+      </div>
+      <div>
+        <div>Current Streak</div>
+        <div className={statMetric}>{stats.streak}</div>
+      </div>
+      <div>
+        <div>Longest Streak</div>
+        <div className={statMetric}>{stats.longestStreak}</div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col items-center pt-8">
       <InfoSection title="How to Play" expand={showHelp}>
@@ -172,6 +238,9 @@ const ClientHome = () => {
       </InfoSection>
       <InfoSection title="Welcome to UFClue!" expand={showAbout}>
         {aboutDesc}
+      </InfoSection>
+      <InfoSection title="Your Stats" expand={showStats}>
+        {statsDesc}
       </InfoSection>
 
       <div className="w-[90%] flex flex-col-reverse items-center gap-3 mt-10 md:justify-between md:flex-row md:items-stretch">
@@ -202,16 +271,22 @@ const ClientHome = () => {
         />
         <div className="flex gap-4">
           <button
-            className="border py-3 px-10 text-xl bg-[#F17171] hover:brightness-90"
+            className="border py-3 px-6 md:px-10 text-xl bg-[#F17171] hover:brightness-90"
             onClick={() => handleInfoSection("help")}
           >
             Help
           </button>
           <button
-            className="border py-3 px-10 text-xl bg-[#69B3AE] hover:brightness-90"
+            className="border py-3 px-6 md:px-10 text-xl bg-[#69B3AE] hover:brightness-90"
             onClick={() => handleInfoSection("about")}
           >
             About
+          </button>
+          <button
+            className="border py-3 px-6 md:px-10 text-xl bg-[#C9A2EA] hover:brightness-90"
+            onClick={() => handleInfoSection("stats")}
+          >
+            Stats
           </button>
         </div>
       </div>
