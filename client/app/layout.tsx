@@ -16,9 +16,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "UFClue",
+  title: "UFClue - The UFC Fighter Guessing Game",
   description:
-    "Test your knowledge of UFC fighters with UFClue. A Wordle inspired game, guess dfaily fighters by their stats like MMA record, division, and more!",
+    "Test your knowledge of UFC fighters with UFClue. A Wordle inspired game, guess daily fighters by their stats like MMA record, division, and more!",
   keywords: [
     "ufc",
     "UFC",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     url: "https://ufc-wordle.vercel.app",
     type: "website",
     locale: "en_US",
-    title: "UFClue",
+    title: "UFClue - The UFC Fighter Guessing Game",
     description:
       "Test your knowledge of UFC fighters with UFClue. A Wordle inspired game, guess dfaily fighters by their stats like MMA record, division, and more!",
     images: [
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "UFClue - A UFC Fighter Guessing Game",
+    title: "UFClue - The UFC Fighter Guessing Game",
     description:
-      "Test your knowledge of UFC fighters with UFClue. A Wordle inspired game, guess dfaily fighters by their stats like MMA record, division, and more!",
+      "Test your knowledge of UFC fighters with UFClue. A Wordle-inspired game — guess daily fighters by their stats like MMA record, division, and more!",
     images: [
       {
         url: "",
@@ -91,13 +91,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <Head>
+        <meta name="theme-color" content="#FBE9D0" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org/",
               "@type": "WebSite",
-              name: "UFClue",
+              name: "UFClue - The UFC Fighter Guessing Game",
               url: "https://ufc-wordle.vercel.app/",
               potentialAction: {
                 "@type": "SearchAction",
